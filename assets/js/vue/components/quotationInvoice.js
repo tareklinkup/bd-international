@@ -59,7 +59,16 @@ const quotationInvoice = Vue.component('quotation-invoice', {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-6 col-xs-offset-6">
+
+                    <div class="col-xs-6">
+                        <table _t92sadbc2>
+                            <tr style="margin-top:50px;">
+                                <td style="text-align:center; font-weight:bold;">{{ quotation.SaleMaster_Description }}</td>
+                            </tr>
+                           
+                        </table>
+                    </div>
+                    <div class="col-xs-6">
                         <table _t92sadbc2>
                             <tr>
                                 <td><strong>Sub Total:</strong></td>
@@ -203,7 +212,7 @@ const quotationInvoice = Vue.component('quotation-invoice', {
                             </div>
                         </div>
                     </div>
-                    <div class="container" style="position:fixed;bottom:15px;width:100%;">
+                    <div class="container" style="margin-top:200px; width:100%;">
                         <div class="row" style="border-bottom:1px solid #ccc;margin-bottom:5px;padding-bottom:6px;">
                             <div class="col-xs-6">
                                 ** THANK YOU FOR YOUR BUSINESS **

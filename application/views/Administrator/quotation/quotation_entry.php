@@ -233,6 +233,15 @@
                             <td>{{ product.total }}</td>
                             <td><a href="" v-on:click.prevent="removeFromCart(sl)"><i class="fa fa-trash"></i></a></td>
                         </tr>
+
+                        <tr style="font-weight: bold;">
+                            <td colspan="7">Terms & Condition</td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="7"><textarea style="width: 100%;font-size:13px; color:black;"
+                                    placeholder="Terms & Condition" v-model="quotation.note"></textarea></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -392,11 +401,12 @@ new Vue({
                 customerAddress: '',
                 quotationBy: '<?php echo $this->session->userdata("FullName"); ?>',
                 quotationFrom: '',
-                quotationDate: '',
+                quotationDate: moment().format('YYYY-MM-DD'),
                 subTotal: 0.00,
                 discount: 0.00,
                 vat: 0.00,
-                total: 0.00
+                total: 0.00,
+                note: '',
             },
             vatPercent: 0,
             discountPercent: 0,
@@ -472,7 +482,7 @@ new Vue({
                 customerMobile: this.selectedCustomer.Customer_Mobile,
                 customerAddress: this.selectedCustomer.Customer_Address,
                 quotationBy: '<?php echo $this->session->userdata("FullName"); ?>',
-                quotationFrom: '',
+                quotationFrom: moment().format('YYYY-MM-DD'),
                 //quotationDate: '',
                 subTotal: 0.00,
                 discount: 0.00,
@@ -567,6 +577,7 @@ new Vue({
                 return;
             }
 
+
             let url = "/add_quotation";
             if (this.quotation.quotationId != 0) {
                 url = "/update_quotation";
@@ -607,6 +618,7 @@ new Vue({
                 this.quotation.salesFrom = quotation.SaleMaster_branchid;
                 //this.quotation.salesDate = quotation.SaleMaster_SaleDate;
                 this.quotation.subTotal = quotation.SaleMaster_SubTotalAmount;
+                this.quotation.note = quotation.SaleMaster_Description;
                 this.quotation.discount = quotation.SaleMaster_TotalDiscountAmount;
                 this.quotation.vat = quotation.SaleMaster_TaxAmount;
                 this.quotation.total = quotation.SaleMaster_TotalSaleAmount;
