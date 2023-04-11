@@ -10,7 +10,7 @@ $db['default'] = array(
 	
   	'username' => 'root',
   	'password' => '',
-  	'database' => 'bdinternational',
+  	'database' => 'bd_international_24',
 	
 // 	'username' => 'root',
 // 	'password' => '',

@@ -22,7 +22,7 @@ class Quotation extends CI_Controller {
         $data['title'] = "Quotation Entry";
         $data['quotationId'] = 0;
         $data['invoice'] = $this->mt->generateQuotationInvoice();
-        $data['content'] = $this->load->view('Administrator/quotation/quotation_entry', $data, TRUE); 
+        $data['content'] = $this->load->view('Administrator/quotation/quotation_entry', $data, TRUE);
         $this->load->view('Administrator/index', $data);
     }
 	
@@ -43,7 +43,6 @@ class Quotation extends CI_Controller {
                 'SaleMaster_customer_name' => $data->quotation->customerName,
                 'SaleMaster_customer_mobile' => $data->quotation->customerMobile,
                 'SaleMaster_customer_address' => $data->quotation->customerAddress,
-                'SaleMaster_Description' => $data->quotation->note ?? null ,
                 'SaleMaster_TotalSaleAmount' => $data->quotation->total,
                 'SaleMaster_TotalDiscountAmount' => $data->quotation->discount,
                 'SaleMaster_TaxAmount' => $data->quotation->vat,
@@ -95,7 +94,6 @@ class Quotation extends CI_Controller {
                 'SaleMaster_customer_name' => $data->quotation->customerName,
                 'SaleMaster_customer_mobile' => $data->quotation->customerMobile,
                 'SaleMaster_customer_address' => $data->quotation->customerAddress,
-                'SaleMaster_Description' => $data->quotation->note,
                 'SaleMaster_TotalSaleAmount' => $data->quotation->total,
                 'SaleMaster_TotalDiscountAmount' => $data->quotation->discount,
                 'SaleMaster_TaxAmount' => $data->quotation->vat,
@@ -160,12 +158,11 @@ class Quotation extends CI_Controller {
                     p.Product_Code,
                     p.Product_Name,
                     pc.ProductCategory_Name,
-                    u.Unit_Name
-
+                    br.brand_name
                 from tbl_quotation_details qd
                 join tbl_product p on p.Product_SlNo = qd.Product_IDNo
-                join tbl_unit u on u.Unit_SlNo = p.Unit_ID
-                join tbl_productcategory pc on pc.ProductCategory_SlNo = p.ProductCategory_ID
+                left join tbl_productcategory pc on pc.ProductCategory_SlNo = p.ProductCategory_ID
+                left join tbl_brand br on br.brand_SiNo = p.brand
                 where qd.SaleMaster_IDNo = ?
             ", $data->quotationId)->result();
         }
