@@ -384,6 +384,7 @@ class Page extends CI_Controller {
     }
 	
     public function company_profile_Update(){
+
         $inpt = $this->input->post('inpt',true);
         $this->load->library('upload');
         $config['upload_path'] = './uploads/company_profile_org/';
@@ -395,6 +396,7 @@ class Page extends CI_Controller {
 
         $data['Company_Name']=  $this->input->post('Company_name',true);
         $data['Repot_Heading']=  $this->input->post('Description',true);
+        $data['terms_condition']=  $this->input->post('terms_condition',true);
         
         $xx = $this->db->query("select * from tbl_company order by Company_SlNo desc limit 1")->row();
 
@@ -454,6 +456,17 @@ class Page extends CI_Controller {
         echo json_encode($branches);
     }
 
+    public function getTermsCondition()
+    {
+        $terms_condition = $this->db->query("
+         select cmp.terms_condition 
+         from tbl_company cmp
+         ORDER BY cmp.Company_SlNo desc limit 1
+        ")->result();
+        
+        echo json_encode($terms_condition);
+    }
+
     public function getCurrentBranch(){
         $branch = $this->Billing_model->company_branch_profile($this->brunch);
         echo json_encode($branch);
@@ -511,6 +524,7 @@ class Page extends CI_Controller {
 
             $branch = json_decode($this->input->post('data'));
 
+            // branch name unique check
             $nameCount = $this->db->query("select * from tbl_brunch where Brunch_name = ?", $branch->name)->num_rows();
             if($nameCount > 0){
                 $res = ['success'=>false, 'message'=> $branch->name . ' already exists'];
@@ -518,9 +532,18 @@ class Page extends CI_Controller {
                 exit;
             }
 
+            // branch BIN unique check
+            $binCount = $this->db->query("select * from tbl_brunch where bin = ?", $branch->bin)->num_rows();
+            if($binCount > 0){
+                $res = ['success'=>false, 'message'=> $branch->bin . ' already exists'];
+                echo json_encode($res);
+                exit;
+            }
+
             $newBranch = array(
                 'Brunch_name' => $branch->name,
                 'Brunch_title' => $branch->title,
+                'bin' => $branch->bin,
                 'Brunch_address' => $branch->address,
                 'Brunch_sales' => '2',
                 'add_by' => $this->session->userdata("FullName"),
@@ -554,6 +577,7 @@ class Page extends CI_Controller {
         try{
             $branch = json_decode($this->input->post('data'));
             
+            // branch name unique check 
             $nameCount = $this->db->query("select * from tbl_brunch where Brunch_name = ? and brunch_id != ?", [$branch->name, $branch->branchId])->num_rows();
             if($nameCount > 0){
                 $res = ['success'=>false, 'message'=> $branch->name . ' already exists'];
@@ -561,9 +585,18 @@ class Page extends CI_Controller {
                 exit;
             }
 
+            // branch BIN unique check 
+            $binCount = $this->db->query("select * from tbl_brunch where bin = ? and brunch_id != ?", [$branch->bin, $branch->branchId])->num_rows();
+            if($binCount > 0){
+                $res = ['success'=>false, 'message'=> $branch->bin . ' already exists'];
+                echo json_encode($res);
+                exit;
+            }
+
             $newBranch = array(
                 'Brunch_name' => $branch->name,
                 'Brunch_title' => $branch->title,
+                'bin' => $branch->bin,
                 'Brunch_address' => $branch->address,
                 'update_by' => $this->session->userdata("FullName")
             );
@@ -940,13 +973,13 @@ class Page extends CI_Controller {
      public function select_brand_by_category($id){
         $brand = $this->Billing_model->select_brand_by_category($id);
 		?>
-		  <option value="">Select Brand</option>
-		<?php
+<option value="">Select Brand</option>
+<?php
 		foreach($brand as $vbrand)
 		{
 		?>
-			<option value="<?php echo $vbrand->brand_SiNo; ?>"><?php echo $vbrand->brand_name; ?></option>
-		<?php
+<option value="<?php echo $vbrand->brand_SiNo; ?>"><?php echo $vbrand->brand_name; ?></option>
+<?php
 		}
     }
 	
@@ -955,45 +988,47 @@ class Page extends CI_Controller {
 		 {
 				$category = $this->Billing_model->select_category($this->session->userdata('BRANCHid'));
 				?>
-				<select name="pCategory" id="pCategory" style="" class="chosen-select form-control"" required>
-					<option value="All">All</option>
-				<?php
+<select name="pCategory" id="pCategory" style="" class="chosen-select form-control"" required>
+					<option value=" All">All</option>
+    <?php
 				foreach($category as $vcategory)
 				{
 				?>
-					<option value="<?php echo $vcategory->ProductCategory_SlNo; ?>"><?php echo $vcategory->ProductCategory_Name; ?></option>
-				<?php }?>
-				</select>
-				
-				<?php 
+    <option value="<?php echo $vcategory->ProductCategory_SlNo; ?>"><?php echo $vcategory->ProductCategory_Name; ?>
+    </option>
+    <?php }?>
+</select>
+
+<?php 
 				}else{
 					$category = $this->Billing_model->select_category_by_brand($id);
 					//echo "<pre>";print_r($category );exit;
 					?>
-						<select name="pCategory" id="pCategory" class="chosen-select form-control"" required>
-						<option value="no">Select Category</option>
-					<?php
+<select name="pCategory" id="pCategory" class="chosen-select form-control"" required>
+						<option value=" no">Select Category</option>
+    <?php
 					foreach($category as $vcategory)
 					{
 					?>
-						<option value="<?php echo $vcategory->ProductCategory_SlNo; ?>"><?php echo $vcategory->ProductCategory_Name; ?></option>
-					<?php
+    <option value="<?php echo $vcategory->ProductCategory_SlNo; ?>"><?php echo $vcategory->ProductCategory_Name; ?>
+    </option>
+    <?php
 					}?>
-					</select>
-					<?php
+</select>
+<?php
 				}
 			}
 		
 	  public function select_category_by_branch($id){
 			$category = $this->Billing_model->select_category_by_branch($id);
 			?>
-			<option value="All">Select All</option>
-			<?php
+<option value="All">Select All</option>
+<?php
 			foreach($category as $vcategory)
 			{
 			?>
-				<option value="<?php echo $vcategory->ProductCategory_SlNo; ?>"><?php echo $vcategory->ProductCategory_Name; ?></option>
-			<?php
+<option value="<?php echo $vcategory->ProductCategory_SlNo; ?>"><?php echo $vcategory->ProductCategory_Name; ?></option>
+<?php
 			}
 		}
 

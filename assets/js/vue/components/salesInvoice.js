@@ -423,7 +423,7 @@ const salesInvoice = Vue.component('sales-invoice', {
                                     <span style="text-decoration:overline;">Received by</span><br><br>
                                 </div>
                                 <div class="col-xs-4 text-center">
-                                    <span>BIN NO: 003090836-0205</span>
+                                    <span>BIN NO: ${this.currentBranch.bin}</span>
                                 </div>
                                 
                                 <div class="col-xs-4 text-right" style="position:relative;">

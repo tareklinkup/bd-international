@@ -500,6 +500,7 @@ class Billing_model extends CI_Model {
 			'Company_Logo_org' => $company->Company_Logo_org,
 			'Company_Name' => $branch->Brunch_title,
 			'Repot_Heading' => $branch->Brunch_address,
+			'bin' 			=> $branch->bin,
 			'print_type' => $company->print_type,
 			'header_logo' => $branch->header_logo,
 			'brunch_id' => $branch->brunch_id,

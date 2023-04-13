@@ -240,7 +240,7 @@
 
                         <tr>
                             <td colspan="7"><textarea style="width: 100%;font-size:13px; color:black;"
-                                    placeholder="Terms & Condition" v-model="quotation.note"></textarea></td>
+                                    placeholder="Terms & Condition" v-model="quotation.terms_condition"></textarea></td>
                         </tr>
                     </tbody>
                 </table>
@@ -406,7 +406,7 @@ new Vue({
                 discount: 0.00,
                 vat: 0.00,
                 total: 0.00,
-                note: '',
+                terms_condition: '',
             },
             vatPercent: 0,
             discountPercent: 0,
@@ -435,17 +435,24 @@ new Vue({
     },
     created() {
         this.getBranches();
+        this.getTermsCondition();
         this.getProducts();
         this.getCustomers();
-
         if (this.quotation.quotationId != 0) {
             this.getQuotations();
         }
     },
+
     methods: {
         getBranches() {
             axios.get('/get_branches').then(res => {
                 this.branches = res.data;
+            })
+        },
+
+        getTermsCondition() {
+            axios.get('/get_terms_condition').then(res => {
+                this.quotation.terms_condition = res.data[0].terms_condition;
             })
         },
         getCustomers() {
@@ -475,6 +482,7 @@ new Vue({
                 return
             }
 
+
             this.quotation = {
                 quotationId: parseInt('<?php echo $quotationId; ?>'),
                 invoiceNo: '<?php echo $invoice; ?>',
@@ -489,6 +497,10 @@ new Vue({
                 vat: 0.00,
                 total: 0.00
             }
+
+            this.getTermsCondition();
+
+
         },
         getProducts() {
             axios.get('/get_products').then(res => {

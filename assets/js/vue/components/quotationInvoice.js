@@ -63,9 +63,16 @@ const quotationInvoice = Vue.component('quotation-invoice', {
                     <div class="col-xs-6">
                         <table _t92sadbc2>
                             <tr style="margin-top:50px;">
-                                <td style="text-align:center; font-weight:bold;">{{ quotation.SaleMaster_Description }}</td>
+                                <td style="text-align:left; font-weight:bold;">{{ quotation.SaleMaster_Description }}</td>
                             </tr>
                            
+                        </table>
+
+                        <table _t92sadbc2 style="margin-top:10px;">
+                        <tr style="margin-top:50px;">
+                            <td style="text-align:left;"> <strong style="font-weight:bold; text-decoration:underline"> Terms & Condition: </strong> <br />  <span> {{ quotation.SaleMaster_terms_condition }} </span> </td>
+                        </tr>
+                       
                         </table>
                     </div>
                     <div class="col-xs-6">

@@ -328,7 +328,8 @@ $route['change_branch_status'] = 'Administrator/Page/changeBranchStatus';
 $route['companyProfile'] = 'Administrator/Page/company_profile';
 $route['company_profile_Update'] = 'Administrator/Page/company_profile_Update';
 $route['company_profile_insert'] = 'Administrator/Page/company_profile_insert';
-$route['get_company_profile'] = 'Administrator/Page/getCompanyProfile';
+$route['get_company_profile'] = 'Administrator/Page/getCompanyProfile'; 
+$route['get_terms_condition'] = 'Administrator/Page/getTermsCondition';
 
 $route['employee'] = 'Administrator/employee';
 $route['get_employees'] = 'Administrator/Employee/getEmployees';

@@ -971,6 +971,106 @@ class Model_Table extends CI_Model{
         return strtoupper($r);
 
     }
+
+    public function getTotalStock(){
+        $data = json_decode($this->input->raw_input_stream);
+
+        $branchId = $this->session->userdata('BRANCHid');
+        $clauses = "";
+        if(isset($data->categoryId) && $data->categoryId != null){
+            $clauses .= " and p.ProductCategory_ID = '$data->categoryId'";
+        }
+
+        if(isset($data->productId) && $data->productId != null){
+            $clauses .= " and p.Product_SlNo = '$data->productId'";
+        }
+
+        if(isset($data->brandId) && $data->brandId != null){
+            $clauses .= " and p.brand = '$data->brandId'";
+        }
+
+        $stock = $this->db->query("
+            select
+                p.*,
+                pc.ProductCategory_Name,
+                b.brand_name,
+                u.Unit_Name,
+                (select ifnull(sum(pd.PurchaseDetails_TotalQuantity), 0) 
+                    from tbl_purchasedetails pd 
+                    join tbl_purchasemaster pm on pm.PurchaseMaster_SlNo = pd.PurchaseMaster_IDNo
+                    where pd.Product_IDNo = p.Product_SlNo
+                    and pd.PurchaseDetails_branchID = '$branchId'
+                    and pd.Status = 'a'
+                    " . (isset($data->date) && $data->date != null ? " and pm.PurchaseMaster_OrderDate <= '$data->date'" : "") . "
+                ) as purchased_quantity,
+                        
+                (select ifnull(sum(prd.PurchaseReturnDetails_ReturnQuantity), 0) 
+                    from tbl_purchasereturndetails prd 
+                    join tbl_purchasereturn pr on pr.PurchaseReturn_SlNo = prd.PurchaseReturn_SlNo
+                    where prd.PurchaseReturnDetailsProduct_SlNo = p.Product_SlNo
+                    and prd.PurchaseReturnDetails_brachid = '$branchId'
+                    " . (isset($data->date) && $data->date != null ? " and pr.PurchaseReturn_ReturnDate <= '$data->date'" : "") . "
+                ) as purchase_returned_quantity,
+                        
+                (select ifnull(sum(sd.SaleDetails_TotalQuantity), 0) 
+                    from tbl_saledetails sd
+                    join tbl_salesmaster sm on sm.SaleMaster_SlNo = sd.SaleMaster_IDNo
+                    where sd.Product_IDNo = p.Product_SlNo
+                    and sd.SaleDetails_BranchId  = '$branchId'
+                    and sd.Status = 'a'
+                    " . (isset($data->date) && $data->date != null ? " and sm.SaleMaster_SaleDate <= '$data->date'" : "") . "
+                ) as sold_quantity,
+                        
+                (select ifnull(sum(srd.SaleReturnDetails_ReturnQuantity), 0)
+                    from tbl_salereturndetails srd 
+                    join tbl_salereturn sr on sr.SaleReturn_SlNo = srd.SaleReturn_IdNo
+                    where srd.SaleReturnDetailsProduct_SlNo = p.Product_SlNo
+                    and srd.SaleReturnDetails_brunchID = '$branchId'
+                    " . (isset($data->date) && $data->date != null ? " and sr.SaleReturn_ReturnDate <= '$data->date'" : "") . "
+                ) as sales_returned_quantity,
+                        
+                (select ifnull(sum(dmd.DamageDetails_DamageQuantity), 0) 
+                    from tbl_damagedetails dmd
+                    join tbl_damage dm on dm.Damage_SlNo = dmd.Damage_SlNo
+                    where dmd.Product_SlNo = p.Product_SlNo
+                    and dmd.status = 'a'
+                    and dm.Damage_brunchid = '$branchId'
+                    " . (isset($data->date) && $data->date != null ? " and dm.Damage_Date <= '$data->date'" : "") . "
+                ) as damaged_quantity,
+            
+                (select ifnull(sum(trd.quantity), 0)
+                    from tbl_transferdetails trd
+                    join tbl_transfermaster tm on tm.transfer_id = trd.transfer_id
+                    where trd.product_id = p.Product_SlNo
+                    and tm.transfer_from = '$branchId'
+                    " . (isset($data->date) && $data->date != null ? " and tm.transfer_date <= '$data->date'" : "") . "
+                ) as transferred_from_quantity,
+
+                (select ifnull(sum(trd.quantity), 0)
+                    from tbl_transferdetails trd
+                    join tbl_transfermaster tm on tm.transfer_id = trd.transfer_id
+                    where trd.product_id = p.Product_SlNo
+                    and tm.transfer_to = '$branchId'
+                    " . (isset($data->date) && $data->date != null ? " and tm.transfer_date <= '$data->date'" : "") . "
+                ) as transferred_to_quantity,
+                        
+                (select (purchased_quantity + sales_returned_quantity + transferred_to_quantity) - (sold_quantity + purchase_returned_quantity + damaged_quantity + transferred_from_quantity)) as current_quantity,
+                (select p.Product_Purchase_Rate * current_quantity) as stock_value
+            from tbl_product p
+            left join tbl_productcategory pc on pc.ProductCategory_SlNo = p.ProductCategory_ID
+            left join tbl_brand b on b.brand_SiNo = p.brand
+            left join tbl_unit u on u.Unit_SlNo = p.Unit_ID
+            where p.status = 'a' and p.is_service = 'false' $clauses
+        ")->result();
+
+        $res['stock'] = $stock;
+        $res['totalValue'] = array_sum(
+            array_map(function($product){
+                return $product->stock_value;
+            }, $stock));
+
+        echo json_encode($res);
+    }
 	
   }
 ?>
